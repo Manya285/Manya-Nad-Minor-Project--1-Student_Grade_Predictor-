@@ -2,10 +2,11 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
+import joblib
 
 
 # Load dataset
-data = pd.read_csv("../Data/student_data.csv")
+data = pd.read_csv("../data/student_data.csv")
 
 print("Dataset Loaded Successfully!")
 print(data.head())
@@ -27,21 +28,22 @@ X = data.drop("final_grade", axis=1)
 y = data["final_grade"]
 
 
-# Split data into training and testing
+# Split dataset
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
 )
 
 
-# Create model
-model = DecisionTreeClassifier()
+# Create and train model
+model = DecisionTreeClassifier(random_state=42)
 
-
-# Train model
 model.fit(X_train, y_train)
 
 
-# Test model
+# Model evaluation
 prediction = model.predict(X_test)
 
 accuracy = accuracy_score(y_test, prediction)
@@ -49,9 +51,18 @@ accuracy = accuracy_score(y_test, prediction)
 print("Model Accuracy:", accuracy)
 
 
-# Predict a new student's grade
+# Save model
+joblib.dump(model, "../grade_model.pkl")
 
-new_student = [[6, 85, 80, 85]]
+print("Model saved successfully!")
+
+
+# Predict new student
+
+new_student = pd.DataFrame(
+    [[6, 85, 80, 85]],
+    columns=X.columns
+)
 
 result = model.predict(new_student)
 
@@ -62,5 +73,6 @@ reverse_mapping = {
     1: "C",
     0: "D"
 }
+
 
 print("Predicted Grade:", reverse_mapping[result[0]])
